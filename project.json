@@ -1,0 +1,12 @@
+{
+    "debugMode"     : 1,
+    "frameRate"     : 60,
+    "id"            : "gameCanvas",
+    "renderMode"    : 1,
+    "jsList"        : [
+                        "src/resource.js",
+                        "src/StartScene.js",
+                        "src/PokerSprite.js",
+                        "src/PlayScene.js"
+                      ]
+}

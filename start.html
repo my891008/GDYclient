@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>干瞪眼——开始游戏界面</title>
+    <script type="text/javascript">
+    var uid = Math.round(Math.random()*100+1);
+    var positions=[];
+    var posindex=1;
+    var ws = new WebSocket('ws://127.0.0.1:3653');
+    var ps;
+
+    ws.onopen = function() {
+        
+    }
+
+
+    ws.onmessage = function (evt) 
+    { 
+      var received_msg = evt.data;
+      var reader = new FileReader();
+      reader.onload = function(event){
+        data=JSON.parse(reader.result);
+        console.log(data);
+        if (data.EnterRoomResponce){
+          if(data.EnterRoomResponce.Uid==0){
+            isEnterRoom(data.EnterRoomResponce);
+
+            
+          }else{
+            //后来上线的客户
+            var name="游客"+data.EnterRoomResponce.Uid;
+            ps.Layers[0].addClient(name);
+            
+          }
+          
+        }
+
+        else if(data.GameResponce){
+          console.log(data.GameResponce.Players)
+          for (var i = 0;i<data.GameResponce.Players.length;i++) {
+            if (uid == data.GameResponce.Players[i].Uid){
+              ShowPoke(data.GameResponce.Players[i]);
+            }
+          }
+          
+        }
+      };
+      reader.readAsText(evt.data);
+    };
+                
+    ws.onclose = function()
+    { 
+      // 关闭 websocket
+      alert("连接已关闭..."); 
+    };
+
+
+    function isEnterRoom(data){
+        if(data.Status){
+          ps = new PlayScene();
+          ps.Players=data.Players;
+          cc.director.runScene( ps );
+
+
+
+        }else{
+          alert(data.Msg);
+        }
+    }
+
+    function ShowPoke(data){
+      var cards =data.Card;
+
+
+      ps.Layers[0].addPoke("00",0,true);
+
+      for(var i=0;i<cards.length;i++)
+      {
+        ps.Layers[0].addPoke(cards[i].Val,i,false);
+      }
+
+
+    }
+    </script>
+</head>
+<body>   
+    <canvas id="gameCanvas" width="414" height="736"></canvas>
+    <script type="text/javascript" src="cocos2d-js-v3.13-lite.js" charset="UTF-8"></script>
+    <script type="text/javascript">
+          window.onload = function(){
+              cc.game.onStart = function(){
+                  //load resources
+                  cc.LoaderScene.preload([res.BackGround_jpg], function () {
+                      cc.director.runScene(new StartScene());
+                  }, this);
+              };
+              cc.game.run("gameCanvas");
+          };
+    </script>
+</body>
+</html>
